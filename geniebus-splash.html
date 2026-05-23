@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GenieBus – Splash Screen</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    border-radius: 54px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #2a1f4a,
+      0 0 0 4px #1a1030,
+      0 40px 80px rgba(0,0,0,0.8),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  /* Splash scene */
+  #splash {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: linear-gradient(160deg, #1a0a3e 0%, #0f0728 40%, #08041a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Ambient radial glow */
+  .ambient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 55%, rgba(180,120,255,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(255,200,60,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Floating particles canvas */
+  #particles-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* Bus stage – centered strip */
+  #bus-stage {
+    position: absolute;
+    width: 100%;
+    height: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    overflow: visible;
+  }
+
+  /* SVG bus wrapper */
+  #bus-wrapper {
+    position: absolute;
+    left: -180px;
+    top: 50%;
+    transform: translateY(-50%);
+    will-change: transform;
+  }
+
+  /* Trail canvas */
+  #trail-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  /* Logo container */
+  #logo-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: scale(0.85);
+    will-change: transform, opacity;
+  }
+
+  #logo-svg {
+    width: 260px;
+    height: 80px;
+    overflow: visible;
+  }
+
+  .tagline {
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,200,80,0.7);
+    font-weight: 400;
+    opacity: 0;
+  }
+
+  /* Glow ring around logo */
+  .logo-glow {
+    position: absolute;
+    width: 320px;
+    height: 120px;
+    border-radius: 60px;
+    background: radial-gradient(ellipse, rgba(255,190,40,0.15) 0%, transparent 70%);
+    filter: blur(20px);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Login card */
+  #login-card {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 480px;
+    background: linear-gradient(180deg, rgba(22,12,50,0.97) 0%, rgba(14,7,32,0.99) 100%);
+    border-radius: 36px 36px 0 0;
+    padding: 36px 28px 40px;
+    opacity: 0;
+    transform: translateY(80px);
+    will-change: transform, opacity;
+    border-top: 1px solid rgba(180,120,255,0.2);
+    box-shadow: 0 -20px 60px rgba(100,40,200,0.15);
+  }
+
+  .card-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 0 auto 28px;
+  }
+
+  .card-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .card-sub {
+    font-size: 14px;
+    color: rgba(200,170,255,0.6);
+    margin-bottom: 32px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-label {
+    font-size: 12px;
+    color: rgba(180,140,255,0.7);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .input-field {
+    width: 100%;
+    height: 52px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(180,120,255,0.2);
+    border-radius: 14px;
+    padding: 0 18px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field::placeholder { color: rgba(255,255,255,0.25); }
+  .input-field:focus { border-color: rgba(255,190,40,0.5); }
+
+  .btn-primary {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, #f5c842 0%, #e8a020 100%);
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a0a3e;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    margin-top: 24px;
+    box-shadow: 0 8px 30px rgba(245,200,66,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 16px rgba(245,200,66,0.25);
+  }
+
+  .login-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: rgba(200,170,255,0.5);
+  }
+
+  .login-footer span {
+    color: rgba(245,200,66,0.85);
+    font-weight: 600;
+  }
+
+  /* Neon curve overlay */
+  #neon-curves {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  /* replay button */
+  #replay-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background: rgba(245,200,66,0.15);
+    border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s, background 0.2s;
+    color: rgba(245,200,66,0.8);
+    font-size: 16px;
+  }
+  #replay-btn:hover { background: rgba(245,200,66,0.25); }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div id="splash">
+    <div class="ambient"></div>
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Neon abstract curves (shown during reversal) -->
+    <svg id="neon-curves" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="neon-blur">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <path id="nc1" d="M-40 600 Q 120 480 250 520 Q 360 560 430 440" stroke="rgba(180,80,255,0.5)" stroke-width="2" fill="none" filter="url(#neon-blur)" stroke-dasharray="400" stroke-dashoffset="400"/>
+      <path id="nc2" d="M-20 680 Q 100 560 220 600 Q 340 640 420 500" stroke="rgba(255,140,60,0.35)" stroke-width="1.5" fill="none" filter="url(#neon-blur)" stroke-dasharray="400" stroke-dashoffset="400"/>
+      <path id="nc3" d="M0 260 Q 140 320 200 280 Q 280 240 380 310" stroke="rgba(140,60,255,0.4)" stroke-width="1.5" fill="none" filter="url(#neon-blur)" stroke-dasharray="360" stroke-dashoffset="360"/>
+    </svg>
+
+    <!-- Trail canvas -->
+    <canvas id="trail-canvas"></canvas>
+
+    <!-- Animated bus -->
+    <div id="bus-stage">
+      <div id="bus-wrapper">
+        <svg id="bus-svg" width="160" height="72" viewBox="0 0 160 72" fill="none">
+          <defs>
+            <filter id="bus-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="window-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="bus-body-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6a35d4"/>
+              <stop offset="100%" stop-color="#3d1a8a"/>
+            </linearGradient>
+            <linearGradient id="bus-roof-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7d45e0"/>
+              <stop offset="100%" stop-color="#5525b0"/>
+            </linearGradient>
+            <linearGradient id="window-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ffe580"/>
+              <stop offset="100%" stop-color="#f5a820"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Shadow -->
+          <ellipse cx="80" cy="68" rx="64" ry="5" fill="rgba(0,0,0,0.35)" filter="url(#bus-glow)"/>
+
+          <!-- Bus body -->
+          <rect x="8" y="20" width="144" height="38" rx="10" fill="url(#bus-body-grad)" filter="url(#bus-glow)"/>
+
+          <!-- Roof section -->
+          <rect x="16" y="12" width="120" height="14" rx="6" fill="url(#bus-roof-grad)"/>
+
+          <!-- Body highlight stripe -->
+          <rect x="8" y="28" width="144" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+
+          <!-- Front face -->
+          <rect x="136" y="20" width="16" height="38" rx="0 10 10 0" fill="#4a22a0"/>
+          <!-- Headlight -->
+          <rect x="140" y="30" width="10" height="8" rx="3" fill="url(#window-grad)" filter="url(#window-glow)"/>
+          <!-- Front bumper -->
+          <rect x="138" y="52" width="14" height="4" rx="2" fill="#2a1060"/>
+
+          <!-- Windows row -->
+          <rect x="22" y="15" width="18" height="12" rx="3" fill="url(#window-grad)" opacity="0.9" filter="url(#window-glow)"/>
+          <rect x="46" y="15" width="18" height="12" rx="3" fill="url(#window-grad)" opacity="0.85" filter="url(#window-glow)"/>
+          <rect x="70" y="15" width="18" height="12" rx="3" fill="url(#window-grad)" opacity="0.8" filter="url(#window-glow)"/>
+          <rect x="94" y="15" width="18" height="12" rx="3" fill="url(#window-grad)" opacity="0.75" filter="url(#window-glow)"/>
+          <rect x="118" y="15" width="14" height="12" rx="3" fill="url(#window-grad)" opacity="0.7" filter="url(#window-glow)"/>
+
+          <!-- Door -->
+          <rect x="18" y="32" width="16" height="22" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+
+          <!-- Destination sign -->
+          <rect x="46" y="32" width="80" height="12" rx="3" fill="rgba(0,0,0,0.3)"/>
+          <text x="86" y="42" text-anchor="middle" font-size="7" fill="rgba(255,210,80,0.9)" font-family="monospace" letter-spacing="1">GENIEB US</text>
+
+          <!-- Wheels -->
+          <circle cx="34" cy="60" r="10" fill="#1a0a3e" stroke="#5530b0" stroke-width="2.5" filter="url(#bus-glow)"/>
+          <circle cx="34" cy="60" r="4" fill="#f5c842" opacity="0.7"/>
+          <circle cx="118" cy="60" r="10" fill="#1a0a3e" stroke="#5530b0" stroke-width="2.5" filter="url(#bus-glow)"/>
+          <circle cx="118" cy="60" r="4" fill="#f5c842" opacity="0.7"/>
+
+          <!-- Undercarriage -->
+          <rect x="24" y="56" width="104" height="5" rx="2" fill="#2a1060"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Logo -->
+    <div id="logo-container">
+      <div class="logo-glow"></div>
+      <svg id="logo-svg" viewBox="0 0 280 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="logo-glow-f" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <linearGradient id="g-letter-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffe580"/>
+            <stop offset="100%" stop-color="#f5a820"/>
+          </linearGradient>
+          <linearGradient id="text-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#d4b0ff"/>
+          </linearGradient>
+          <clipPath id="g-clip">
+            <rect x="0" y="0" width="68" height="80"/>
+          </clipPath>
+        </defs>
+
+        <!-- "G" letter – the morphed trail -->
+        <!-- G stroke path: outer arc + horizontal bar -->
+        <g id="g-letter" clip-path="url(#g-clip)" filter="url(#logo-glow-f)">
+          <!-- Outer circle -->
+          <circle cx="34" cy="40" r="30" stroke="url(#g-letter-grad)" stroke-width="9" fill="none"
+            stroke-dasharray="160" stroke-dashoffset="160"
+            stroke-linecap="round"/>
+          <!-- Horizontal bar of G -->
+          <line id="g-bar" x1="34" y1="40" x2="62" y2="40"
+            stroke="url(#g-letter-grad)" stroke-width="9"
+            stroke-dasharray="28" stroke-dashoffset="28"
+            stroke-linecap="round"/>
+          <!-- Bar vertical drop -->
+          <line id="g-drop" x1="62" y1="40" x2="62" y2="52"
+            stroke="url(#g-letter-grad)" stroke-width="9"
+            stroke-dasharray="12" stroke-dashoffset="12"
+            stroke-linecap="round"/>
+        </g>
+
+        <!-- "enieBus" letters, each individually animated -->
+        <g id="rest-letters" fill="url(#text-grad)" font-family="'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="46" font-weight="700" letter-spacing="-1">
+          <text id="l-e"  x="72"  y="58" opacity="0">e</text>
+          <text id="l-n"  x="101" y="58" opacity="0">n</text>
+          <text id="l-i"  x="131" y="58" opacity="0">i</text>
+          <text id="l-e2" x="143" y="58" opacity="0">e</text>
+          <text id="l-B"  x="171" y="58" opacity="0" fill="#f5c842">B</text>
+          <text id="l-u"  x="201" y="58" opacity="0">u</text>
+          <text id="l-s"  x="229" y="58" opacity="0">s</text>
+        </g>
+      </svg>
+      <div class="tagline">Your smart transit companion</div>
+    </div>
+
+    <!-- Login card -->
+    <div id="login-card">
+      <div class="card-handle"></div>
+      <div class="card-title">Welcome back</div>
+      <div class="card-sub">Sign in to continue your journey</div>
+
+      <div class="input-group">
+        <div class="input-label">Phone / Email</div>
+        <input class="input-field" type="text" placeholder="+1 (555) 000-0000"/>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Password</div>
+        <input class="input-field" type="password" placeholder="••••••••"/>
+      </div>
+
+      <button class="btn-primary">Sign In</button>
+
+      <div class="login-footer">
+        Don't have an account? <span>Sign Up Free</span>
+      </div>
+    </div>
+
+    <div id="replay-btn" title="Replay animation">&#8635;</div>
+  </div>
+</div>
+
+<script>
+// ─── Utilities ──────────────────────────────────────────────────────────────
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+function easeIn(t) { return t * t * t; }
+function easeOutBack(t) {
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+// Timeline: keyframes in seconds within [0, totalDuration]
+const TOTAL = 5000; // ms
+
+// ─── Particles ───────────────────────────────────────────────────────────────
+
+const pCanvas = document.getElementById('particles-canvas');
+const pCtx = pCanvas.getContext('2d');
+const splash = document.getElementById('splash');
+
+function resizeCanvas(canvas) {
+  canvas.width = splash.offsetWidth;
+  canvas.height = splash.offsetHeight;
+}
+
+resizeCanvas(pCanvas);
+
+const NUM_PARTICLES = 45;
+const particles = Array.from({length: NUM_PARTICLES}, () => ({
+  x: Math.random() * pCanvas.width,
+  y: Math.random() * pCanvas.height,
+  r: Math.random() * 1.8 + 0.4,
+  vx: (Math.random() - 0.5) * 0.3,
+  vy: (Math.random() - 0.5) * 0.25 - 0.1,
+  alpha: Math.random() * 0.6 + 0.2,
+  pulse: Math.random() * Math.PI * 2,
+  pulseSpeed: Math.random() * 0.02 + 0.01,
+  color: Math.random() > 0.4 ? '#f5c842' : '#c880ff',
+}));
+
+let particlesAlpha = 1;
+
+function drawParticles() {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  particles.forEach(p => {
+    p.pulse += p.pulseSpeed;
+    const a = (p.alpha * (0.7 + 0.3 * Math.sin(p.pulse))) * particlesAlpha;
+    pCtx.beginPath();
+    pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    pCtx.fillStyle = p.color;
+    pCtx.globalAlpha = a;
+    pCtx.fill();
+    // tiny glow
+    pCtx.beginPath();
+    pCtx.arc(p.x, p.y, p.r * 2.5, 0, Math.PI * 2);
+    const grad = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2.5);
+    grad.addColorStop(0, p.color + '55');
+    grad.addColorStop(1, p.color + '00');
+    pCtx.fillStyle = grad;
+    pCtx.globalAlpha = a * 0.5;
+    pCtx.fill();
+
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < -4) p.x = pCanvas.width + 4;
+    if (p.x > pCanvas.width + 4) p.x = -4;
+    if (p.y < -4) p.y = pCanvas.height + 4;
+    if (p.y > pCanvas.height + 4) p.y = -4;
+  });
+  pCtx.globalAlpha = 1;
+}
+
+// ─── Trail canvas ─────────────────────────────────────────────────────────────
+
+const tCanvas = document.getElementById('trail-canvas');
+const tCtx = tCanvas.getContext('2d');
+resizeCanvas(tCanvas);
+
+// We store trail points during forward drive, then retract during reverse
+let trailPoints = [];
+let trailOpacity = 0;
+
+function drawTrail(retractFraction) {
+  tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
+  if (trailPoints.length < 2) return;
+
+  // retractFraction 0 = full trail, 1 = no trail (retracted from left)
+  const endIdx = Math.floor(trailPoints.length * (1 - retractFraction));
+  if (endIdx < 2) return;
+
+  const pts = trailPoints.slice(0, endIdx);
+
+  tCtx.save();
+  tCtx.globalAlpha = trailOpacity;
+
+  // outer glow
+  for (let i = 1; i < pts.length; i++) {
+    const frac = i / pts.length;
+    const w = lerp(2, 14, frac);
+    tCtx.beginPath();
+    tCtx.moveTo(pts[i-1].x, pts[i-1].y);
+    tCtx.lineTo(pts[i].x, pts[i].y);
+    tCtx.strokeStyle = `rgba(245,200,66,${frac * 0.25})`;
+    tCtx.lineWidth = w * 2;
+    tCtx.lineCap = 'round';
+    tCtx.stroke();
+  }
+  // core
+  for (let i = 1; i < pts.length; i++) {
+    const frac = i / pts.length;
+    const w = lerp(1, 5, frac);
+    tCtx.beginPath();
+    tCtx.moveTo(pts[i-1].x, pts[i-1].y);
+    tCtx.lineTo(pts[i].x, pts[i].y);
+    tCtx.strokeStyle = `rgba(255,230,100,${frac * 0.9})`;
+    tCtx.lineWidth = w;
+    tCtx.lineCap = 'round';
+    tCtx.stroke();
+  }
+  tCtx.restore();
+}
+
+// ─── Element refs ─────────────────────────────────────────────────────────────
+
+const busWrapper   = document.getElementById('bus-wrapper');
+const busSvg       = document.getElementById('bus-svg');
+const logoCont     = document.getElementById('logo-container');
+const logoGlow     = document.querySelector('.logo-glow');
+const trailCanvas  = document.getElementById('trail-canvas');
+const neonCurves   = document.getElementById('neon-curves');
+const loginCard    = document.getElementById('login-card');
+const tagline      = document.querySelector('.tagline');
+const replayBtn    = document.getElementById('replay-btn');
+
+// G letter paths
+const gCircle = document.querySelector('#g-letter circle');
+const gBar    = document.getElementById('g-bar');
+const gDrop   = document.getElementById('g-drop');
+
+// Individual letters
+const letters = ['l-e','l-n','l-i','l-e2','l-B','l-u','l-s'].map(id => document.getElementById(id));
+
+// Neon paths
+const nc1 = document.getElementById('nc1');
+const nc2 = document.getElementById('nc2');
+const nc3 = document.getElementById('nc3');
+
+// ─── Animation state ──────────────────────────────────────────────────────────
+
+let startTime = null;
+let animId = null;
+let isRunning = false;
+
+// Bus track: x goes from -180 to screenW+20 (forward), then back to centerX
+const W = 390;
+const H = 844;
+const BUS_Y = H / 2;
+const busCenterX = W / 2 - 80; // approx center of bus frame
+
+function getBusX(elapsed) {
+  // Phase 1 (0–1.4s): drive forward across screen
+  // Phase 2 (1.4–2.2s): reverse, bus goes backward
+  const phase1End = 1400;
+  const phase2End = 2200;
+
+  if (elapsed < phase1End) {
+    const t = easeOut(elapsed / phase1End);
+    return lerp(-180, W + 20, t);
+  } else if (elapsed < phase2End) {
+    const t = easeInOut((elapsed - phase1End) / (phase2End - phase1End));
+    return lerp(W + 20, busCenterX, t);
+  }
+  return busCenterX;
+}
+
+function reset() {
+  // bus
+  busWrapper.style.transform = 'translateX(0px) translateY(-50%) scaleX(1)';
+  busWrapper.style.left = '-180px';
+  busSvg.style.transform = '';
+
+  // trail
+  trailPoints = [];
+  trailOpacity = 0;
+  trailCanvas.style.opacity = 0;
+  tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
+
+  // neon
+  neonCurves.style.opacity = 0;
+  nc1.setAttribute('stroke-dashoffset', '400');
+  nc2.setAttribute('stroke-dashoffset', '400');
+  nc3.setAttribute('stroke-dashoffset', '360');
+
+  // logo
+  logoCont.style.opacity = 0;
+  logoCont.style.transform = 'scale(0.85)';
+  logoGlow.style.opacity = 0;
+  gCircle.setAttribute('stroke-dashoffset', '160');
+  gBar.setAttribute('stroke-dashoffset', '28');
+  gDrop.setAttribute('stroke-dashoffset', '12');
+  letters.forEach(l => { l.setAttribute('opacity', '0'); });
+  tagline.style.opacity = 0;
+
+  // login card
+  loginCard.style.opacity = 0;
+  loginCard.style.transform = 'translateY(80px)';
+
+  // particles
+  particlesAlpha = 1;
+
+  replayBtn.style.opacity = 0;
+}
+
+function animate(timestamp) {
+  if (!startTime) startTime = timestamp;
+  const elapsed = timestamp - startTime; // ms
+
+  drawParticles();
+
+  // ── Phase 0–1.4s: bus drives forward ──
+  if (elapsed < 2200) {
+    const busX = getBusX(elapsed);
+    busWrapper.style.left = busX + 'px';
+    busWrapper.style.transform = 'translateY(-50%) scaleX(1)';
+
+    // collect trail points (bus right edge ≈ busX + 152)
+    if (elapsed > 100 && elapsed < 1400) {
+      trailPoints.push({ x: busX + 152, y: BUS_Y });
+      trailCanvas.style.opacity = 1;
+      trailOpacity = clamp((elapsed - 100) / 300, 0, 1);
+      drawTrail(0);
+    }
+  }
+
+  // ── Phase 1.4–2.2s: reverse + neon curves emerge ──
+  if (elapsed >= 1400 && elapsed < 2200) {
+    const t = (elapsed - 1400) / 800;
+
+    // flip bus horizontally
+    busSvg.style.transform = `scaleX(${lerp(1, -1, easeInOut(t))})`;
+
+    // retract trail from right to left as bus retreats
+    drawTrail(easeIn(t));
+    trailOpacity = lerp(1, 0, easeIn(t));
+
+    // neon curves emerge
+    neonCurves.style.opacity = easeOut(t) * 0.8;
+    nc1.setAttribute('stroke-dashoffset', lerp(400, 0, easeOut(clamp(t*1.5,0,1))));
+    nc2.setAttribute('stroke-dashoffset', lerp(400, 0, easeOut(clamp((t-0.1)*1.5,0,1))));
+    nc3.setAttribute('stroke-dashoffset', lerp(360, 0, easeOut(clamp((t-0.2)*1.5,0,1))));
+
+    // bus fades out as it reaches center
+    if (t > 0.7) busWrapper.style.opacity = lerp(1, 0, (t - 0.7) / 0.3);
+  }
+
+  // ── Phase 2.2–3.2s: G letter draws (trail morphs into G stroke) ──
+  if (elapsed >= 2200 && elapsed < 3200) {
+    const t = (elapsed - 2200) / 1000;
+
+    busWrapper.style.opacity = 0;
+    neonCurves.style.opacity = lerp(0.8, 0, easeIn(t));
+    trailCanvas.style.opacity = 0;
+
+    // Logo fades in
+    logoCont.style.opacity = easeOut(clamp(t / 0.3, 0, 1));
+    logoCont.style.transform = `scale(${lerp(0.85, 1, easeOutBack(clamp(t / 0.4, 0, 1)))})`;
+    logoGlow.style.opacity = easeOut(clamp((t - 0.1) / 0.5, 0, 1)) * 0.8;
+
+    // G circle draws (dashoffset 160→0)
+    const gT = easeOut(clamp(t / 0.7, 0, 1));
+    gCircle.setAttribute('stroke-dashoffset', lerp(160, 0, gT));
+
+    // G bar and drop after circle
+    if (t > 0.6) {
+      const barT = easeOut((t - 0.6) / 0.4);
+      gBar.setAttribute('stroke-dashoffset', lerp(28, 0, clamp(barT,0,1)));
+      gDrop.setAttribute('stroke-dashoffset', lerp(12, 0, clamp(barT,0,1)));
+    }
+
+    // Letters stagger in
+    letters.forEach((l, i) => {
+      const lt = clamp((t - 0.35 - i * 0.07) / 0.25, 0, 1);
+      l.setAttribute('opacity', easeOut(lt));
+    });
+  }
+
+  // ── Phase 3.2–4.0s: logo glows, tagline fades ──
+  if (elapsed >= 3200 && elapsed < 4000) {
+    const t = (elapsed - 3200) / 800;
+    logoCont.style.opacity = 1;
+    logoCont.style.transform = 'scale(1)';
+    logoGlow.style.opacity = 0.8 + 0.2 * Math.sin(elapsed / 300);
+    tagline.style.opacity = easeOut(clamp(t / 0.5, 0, 1));
+    particlesAlpha = lerp(1, 0.3, easeIn(t));
+  }
+
+  // ── Phase 4.0–5.0s: logo shifts up, login card rises ──
+  if (elapsed >= 4000 && elapsed < 5000) {
+    const t = (elapsed - 4000) / 1000;
+
+    logoCont.style.transform = `scale(${lerp(1, 0.85, easeInOut(t))}) translateY(${lerp(0, -60, easeInOut(t))}px)`;
+
+    loginCard.style.opacity = easeOut(clamp(t / 0.6, 0, 1));
+    loginCard.style.transform = `translateY(${lerp(80, 0, easeOut(clamp(t / 0.7, 0, 1)))}px)`;
+  }
+
+  // ── Done ──
+  if (elapsed >= 5000) {
+    logoCont.style.transform = 'scale(0.85) translateY(-60px)';
+    loginCard.style.opacity = 1;
+    loginCard.style.transform = 'translateY(0)';
+    replayBtn.style.opacity = 1;
+    isRunning = false;
+    return;
+  }
+
+  animId = requestAnimationFrame(animate);
+}
+
+function startAnimation() {
+  if (animId) cancelAnimationFrame(animId);
+  reset();
+  startTime = null;
+  isRunning = true;
+  animId = requestAnimationFrame(animate);
+}
+
+replayBtn.addEventListener('click', startAnimation);
+
+// Kick off
+startAnimation();
+</script>
+</body>
+</html>
